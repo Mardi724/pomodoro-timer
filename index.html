@@ -374,9 +374,9 @@
         </div>
 
         <div class="modes">
-            <button class="mode-btn active" onclick="setMode('work')">Work<br>25 min</button>
-            <button class="mode-btn" onclick="setMode('short')">Break<br>5 min</button>
-            <button class="mode-btn" onclick="setMode('long')">Long<br>15 min</button>
+            <button class="mode-btn active" id="btn-work">Work<br>25 min</button>
+            <button class="mode-btn" id="btn-short">Break<br>5 min</button>
+            <button class="mode-btn" id="btn-long">Long<br>15 min</button>
         </div>
 
         <div class="timer-display">
@@ -397,9 +397,9 @@
         <div class="session-dots" id="session-dots"></div>
 
         <div class="controls">
-            <button class="btn primary" id="main-btn" onclick="toggleTimer()">START</button>
-            <button class="btn secondary" onclick="skipSession()">SKIP</button>
-            <button class="btn secondary" onclick="resetTimer()">RESET</button>
+            <button class="btn primary" id="main-btn">START</button>
+            <button class="btn secondary" id="btn-skip">SKIP</button>
+            <button class="btn secondary" id="btn-reset">RESET</button>
         </div>
 
         <div class="stats">
@@ -427,6 +427,7 @@
     </footer>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
         const MODES = {
             work:  { label: 'Focus Mode',   seconds: 25 * 60 },
             short: { label: 'Short Break',  seconds: 5 * 60 },
@@ -442,7 +443,7 @@
         let completedBreaks = 0;
         let totalFocusSeconds = 0;
 
-        function renderDots() {
+        const renderDots = () => {  
             const el = document.getElementById('session-dots');
             el.innerHTML = '';
             for (let i = 0; i < 4; i++) {
@@ -452,7 +453,7 @@
             }
         }
 
-        function updateDisplay() {
+        const updateDisplay = () => {
             const m = Math.floor(remaining / 60);
             const s = remaining % 60;
             document.getElementById('time-display').textContent =
@@ -466,10 +467,11 @@
             renderDots();
         }
 
-        function setMode(mode) {
+        const setMode = (mode) => {
             if (running) return;
             currentMode = mode;
-            totalSeconds = MODES[mode].seconds;
+            const { label, seconds } = MODES[mode];
+            totalSeconds = seconds;
             remaining = totalSeconds;
             document.getElementById('mode-label').textContent = MODES[mode].label;
             document.querySelectorAll('.mode-btn').forEach((b, i) => {
@@ -480,7 +482,7 @@
             updateDisplay();
         }
 
-        function toggleTimer() {
+        const toggleTimer = () => {
             if (running) {
                 clearInterval(interval);
                 running = false;
@@ -500,7 +502,7 @@
             }
         }
 
-        function tick() {
+        const tick = () => {
             if (currentMode === 'work') totalFocusSeconds++;
             remaining--;
             updateDisplay();
@@ -522,7 +524,7 @@
             }
         }
 
-        function skipSession() {
+        const skipSession = () => {
             clearInterval(interval);
             running = false;
             if (currentMode === 'work') {
@@ -540,7 +542,7 @@
             updateDisplay();
         }
 
-        function resetTimer() {
+        const resetTimer = () => {
             clearInterval(interval);
             running = false;
             remaining = totalSeconds;
@@ -552,20 +554,28 @@
             updateDisplay();
         }
 
-        function setStatus(text, cls) {
+        const setStatus = (text, cls) => {
             const el = document.getElementById('status-text');
             el.textContent = text;
-            el.className = 'status-line' + (cls ? ' ' + cls : '');
+            el.className = `status-line ${cls ? '' + cls : ''}`;
         }
 
-        function setBadge(text, idle) {
+        const setBadge = (text, idle) => {
             const el = document.getElementById('badge');
             el.textContent = text;
-            el.className = 'status-badge' + (idle ? ' idle' : '');
+            el.className = `status-badge ${idle ?' idle':''}`;
         }
 
         renderDots();
         updateDisplay();
+
+        document.getElementById('btn-work').addEventListener('click', () => setMode('work'));
+        document.getElementById('btn-short').addEventListener('click', () => setMode('short'));
+        document.getElementById('btn-long').addEventListener('click', () => setMode('long'));
+        document.getElementById('main-btn').addEventListener('click', toggleTimer);
+        document.getElementById('btn-skip').addEventListener('click', skipSession);
+        document.getElementById('btn-reset').addEventListener('click', resetTimer);
+        });
     </script>
 
 </body>
